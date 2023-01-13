@@ -2,6 +2,9 @@
 #include <rte_eal.h>
 #include <rte_ethdev.h>
 #include <rte_mbuf.h>
+#include <rte_mempool.h>
+#include <rte_port.h>
+#include <rte_port_ethdev.h>
 #include <arpa/inet.h>
 
 static struct rte_eth_conf port_conf = {
