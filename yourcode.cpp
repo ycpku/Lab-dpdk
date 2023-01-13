@@ -3,10 +3,16 @@
 #include <rte_ethdev.h>
 #include <rte_mbuf.h>
 #include <rte_mempool.h>
+#include <rte_mempool_trace.h>
+#include <rte_mempool_trace_fp.h>
+#include <rte_memzone.h>
 #include <rte_port.h>
+#include <rte_lpm.h>
+#include <rte_config.h>
 #include <rte_port_ethdev.h>
 #include <arpa/inet.h>
-
+#include <vector>
+std::vector <struct rte_mbuf*> tx_buffer[10005];
 static struct rte_eth_conf port_conf = {
     .rxmode = {
         .offloads = RTE_ETH_RX_OFFLOAD_CHECKSUM,
@@ -15,11 +21,14 @@ static struct rte_eth_conf port_conf = {
         .mq_mode = RTE_ETH_MQ_TX_NONE,
     },
 };
-
+struct rte_lpm* rule_table=NULL;
 void userInit(int argc, char **argv) {
     struct rte_eth_dev_info dev_info;
     int portid;
     rte_eal_init(argc, argv);
+    struct rte_mempool** mempool;
+    struct rte_ether_addr ports_eth_addr[10005];
+    uint16_t queueid=0;
     RTE_ETH_FOREACH_DEV(portid) {
         /** Create Mempool **/
         int socketid = rte_socket_id();
@@ -67,7 +76,7 @@ int userLoop() {
     RTE_ETH_FOREACH_DEV(portid) {
         struct rte_mbuf* pkts[32];
         auto n_pkt = rte_eth_rx_burst(portid, 0, pkts, 32);
-        for (int i = 0; i < n_pkts; i ++) {
+        for (int i = 0; i < n_pkt; i ++) {
             auto pkt = pkts[i];
             auto eth_hdr = rte_pktmbuf_mtod(pkt, struct rte_ether_hdr*);
             auto ipv4_hdr = (struct rte_ipv4_hdr *)(eth_hdr + 1);
@@ -91,6 +100,7 @@ int userAddLPMRule(uint32_t dst_ip, uint8_t cidr, uint8_t dst_port) {
         config_ipv4.max_rules = IPV4_L3FWD_LPM_MAX_RULES;
         config_ipv4.number_tbl8s = IPV4_L3FWD_LPM_NUMBER_TBL8S;
         config_ipv4.flags = 0;
+        int socketid = 100;
         rule_table = rte_lpm_create(s, socketid, &config_ipv4);
     }
     if (!rule_table) return -1;
@@ -102,7 +112,7 @@ int userDelLPMRule(uint32_t dst_ip, uint8_t cidr) {
     return rte_lpm_delete(rule_table, dst_ip, cidr);
 }
 
-int userGetNextHop(uint32_t dst_ip, uint8_t cidr) {
+int userGetNextHop(uint32_t dst_ip) {
     if (!rule_table)
         return -1;
     uint32_t ret;
