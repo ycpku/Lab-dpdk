@@ -156,7 +156,7 @@ public:
         addr.sin_addr.s_addr = inet_addr("10.1.0.1");
 
         assert(bind(listen_fd, reinterpret_cast<sockaddr*>(&addr), sizeof(sockaddr)) == 0 && "Bind failed");
-        assert(listen(fd, 128) == 0 && "Listen failed");
+        assert(listen(listen_fd, 128) == 0 && "Listen failed");
 
         fd = accept(listen_fd, nullptr, nullptr);
         assert(fd > 0 && "Failed to wait client connect");
