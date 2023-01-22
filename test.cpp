@@ -233,8 +233,8 @@ int main(int argc, char** argv) {
         
         /** Read settings **/
         std::ifstream fin;
-        fin.open("../test_setting", std::ios_base::in);
-        assert(fin.is_open() && "Failed to open test_setting");
+        fin.open("../test_settings", std::ios_base::in);
+        assert(fin.is_open() && "Failed to open test_settings");
         {
             std::string opt;
             while (fin >> opt) {
