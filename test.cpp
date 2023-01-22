@@ -252,13 +252,12 @@ int main(int argc, char** argv) {
 
         /** Init DPDK **/
         {
-            int margc = 4;
+            int margc = 3;
             char** margv = new char*[margc];
             std::string argvs[] = {
                 "./main",
                 "-c",
-                "0xff",
-                "--log-level=critical"
+                "0xff"
             };
             for (int i = 0; i < margc; i ++) {
                 margv[i] = (char*)argvs[i].c_str();
