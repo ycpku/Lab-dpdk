@@ -96,7 +96,7 @@ public:
 
     int write(const char* buf, int len) {
         tx_buff[0] = rte_pktmbuf_alloc(m_mempool);
-        assert (!this->tx_buff[0] && "Mempool ran out");
+        assert (this->tx_buff[0] && "Mempool ran out");
         tx_buff[0]->pkt_len = tx_buff[0]->data_len = len;
         tx_buff[0]->nb_segs = 1;
         tx_buff[0]->next = NULL;
